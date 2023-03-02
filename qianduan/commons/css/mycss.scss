@@ -1,0 +1,178 @@
+  //页面撑开样式
+  .content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: var(--status-bar-height);
+  }
+  .main{
+    margin-top: var(--status-bar-height);
+  }
+  //底部公用样式
+  .bottom-bar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90rpx;
+    padding: 10rpx 0;
+    z-index: 10;
+    padding-bottom: var(--status-bar-height);
+    .bottom-btn{
+      box-sizing: border-box;
+      text-align: center;
+      line-height: 40px;
+      margin: auto;
+      width: 342px;
+      height: 40px;
+      background: #FFE431;
+      border-radius: 5px;
+      font-family: PingFangSC-Regular;
+      font-size: 16px;
+      color: #272832;
+      letter-spacing: -0.55px;
+      font-weight: 400;
+    }
+    .bottom-left{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      image{
+        width: 28px;
+        height: 28px;
+      }
+    }
+    .bottom-center{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      image{
+        width: 44px;
+        height: 21px;
+      }
+    }
+    .bottom-right{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      image{
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+  //头部公用样式
+  .top-bar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 88rpx;
+    background-color: $uni-bg-color;
+    box-sizing: border-box;
+    border-bottom: 1px solid $uni-border-color;
+    padding-left: $uni-spacing-col-base;
+    padding-right: $uni-spacing-col-base;
+    .search-div{
+      width: 90%;
+      box-sizing: border-box;
+      padding: 14rpx 80rpx 14rpx 0;
+      .search-input{
+        padding: 0 60rpx 0 20rpx;
+        height: 60rpx;
+        background: $uni-bg-color-grey;
+        border-radius: 10rpx;
+      }
+      image{
+        position: absolute;
+        right: 130rpx;
+        top: 25rpx;
+        width: 40rpx;
+        height: 40rpx;
+      }
+      
+    }
+    .top-bar-left{
+      .back-image{
+        padding-top: 10rpx;
+        width: 26rpx;
+        height: 46rpx;
+      }
+    }
+    .top-bar-center{
+      text-align: center;
+      .head-image{
+        width: 68rpx;
+        height: 68rpx;
+        border-radius: 16rpx;
+      }
+      .logo{
+        width: 88rpx;
+        height: 42rpx;
+      }
+      .title{
+        font-family: PingFangSC-Regular;
+        font-size: 20px;
+        color: #272832;
+        letter-spacing: -0.69px;
+        font-weight: 400;
+      }
+    }
+    .top-bar-right{
+      .search-image{
+        width: 88rpx;
+        height: 88rpx;
+        box-sizing: border-box;
+        padding: 18rpx;
+        image{
+          width: 52rpx;
+          height: 52rpx;
+        }
+      }
+      .more-img{
+        box-sizing: border-box;
+        width: 88rpx;
+        height: 88rpx;
+        padding: 18rpx;
+        image{
+          width: 52rpx;
+          height: 12rpx;
+        }
+      }
+      .text{
+        text-align: center;
+        font-family: PingFangSC-Medium;
+        font-size: 36rpx;
+        color: #333333;
+        font-weight: 500;
+        line-height: 50rpx;
+      }
+      .add{
+        display: inline-block;
+        width: 80rpx;
+        height: 80rpx;
+        text-align: center;
+        image{
+          width: 48rpx;
+          height: 48rpx;
+        }
+      }
+    }
+  }
+ 
+ //input内容样式
+  .input-pla{
+    color: rgba(39,40,50,0.40);
+  }

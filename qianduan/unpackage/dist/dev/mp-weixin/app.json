@@ -1,0 +1,25 @@
+{
+  "pages": [
+    "pages/chatlist/chatlist",
+    "pages/signin/signin",
+    "pages/signup/signup",
+    "pages/search/search",
+    "pages/userhome/userhome",
+    "pages/userdetail/userdetail",
+    "pages/friendrequest/friendrequest",
+    "pages/chatroom/chatroom"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "2312321"
+    }
+  },
+  "usingComponents": {}
+}

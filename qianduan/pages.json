@@ -1,0 +1,75 @@
+{
+  "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/chatlist/chatlist",
+      "style": {
+        //"navigationBarTitleText": "uni-app"
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+    }, {
+      "path": "pages/signin/signin",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/signup/signup",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/search/search",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/userhome/userhome",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/userdetail/userdetail",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/friendrequest/friendrequest",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/chatroom/chatroom",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  }
+}
