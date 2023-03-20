@@ -127,7 +127,7 @@
           </view>
         </view>
       </view>
-      <view class="bt2" v-if="dataarr.isSelf">
+      <view class="bt2" v-if="dataarr.isSelf" @click="loginOut()">
         退出登录
       </view>
     </view>
@@ -251,6 +251,11 @@
       }
     },
     methods: {
+      loginOut(){
+        uni.navigateTo({
+          url: "../signin/signin"
+        })
+      },
       //获取缓存数据
       getStorages: function() {
         try {

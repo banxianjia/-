@@ -86,21 +86,22 @@
           }else{
             console.log("false")
             this.isinvalid = false
-            uni.request({
-              url: this.serverURL + "/signup/judge/email",
-              data: {
-                email: this.email
-              },
-              method: 'POST',
-              success: (res) => {
-                console.log(res)
-                console.log(res.data.isok)
-                this.isEmailEmploy = res.data.isok
-                this.isemail = !res.data.isok
-                console.log(this.isEmailEmploy)
-                console.log(this.isemail)
-              }
-            })
+            this.isemail = true
+            // uni.request({
+            //   url: this.serverURL + "/signup/judge/email",
+            //   data: {
+            //     email: this.email
+            //   },
+            //   method: 'POST',
+            //   success: (res) => {
+            //     console.log(res)
+            //     console.log(res.data.isok)
+            //     this.isEmailEmploy = res.data.isok
+            //     this.isemail = !res.data.isok
+            //     console.log(this.isEmailEmploy)
+            //     console.log(this.isemail)
+            //   }
+            // })
           }
         }else{
           this.isEmailEmploy = false,

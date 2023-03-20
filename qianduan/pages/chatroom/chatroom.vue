@@ -1,12 +1,13 @@
 <template>
   <view class="content" :style="{height:contentHeight+'px'}">
+
     <view class="top-bar">
       <view class="top-bar-left">
-        <image class="back-image" src="../../static/images/common/back.png" mode=""></image>
+        <image class="back-image" src="../../static/images/common/back.png" mode="" @click="backOne()"></image>
       </view>
       <view class="top-bar-center">
         <view class="title">
-          好友昵称/备注
+          {{fname}}
         </view>
       </view>
       <view class="top-bar-right">
@@ -24,10 +25,10 @@
         </view>
         <view class="chat-ls" v-for="(item, index) in msgs" :key="index">
           <view class="chat-time">{{item.time}}</view>
-          <view :class="[item.id == 'a' ?'msg-left':'msg-right']" class="msg-m">
+          <view :class="[item.userId == fid ?'msg-left':'msg-right']" class="msg-m">
             <image class="user-img" :src="item.imgurl" mode=""></image>
-            <view class="message" v-if="item.types == 0">{{item.message}}</view>
-            <view class="message" v-if="item.types == 1">
+            <view class="message" v-if="item.type == 0||item.type == 3">{{item.message}}</view>
+            <view class="message" v-if="item.type == 1">
               <image @tap="previewImg(item.message)" class="msg-img" :src="item.message" mode="widthFix"></image>
             </view>
           </view>
@@ -35,6 +36,7 @@
         <view style="height: 150rpx;"></view>
       </view>
     </scroll-view>
+    
     <submit @inputs="inputs" @submitHeight="getSubmitHeight"></submit>
   </view>
 </template>
@@ -61,6 +63,9 @@
         nePage: 0,
         canload: true,
         isload: true,
+        fid: null,
+        fname: null,
+        fimg:null,
       };
     },
     components: {
@@ -74,11 +79,21 @@
         }
       },
     },
-    onLoad() {
-      this.getMsgs(0)
+    onLoad(e) {
+      // this.getMsgs(0)
       setTimeout(() => {
         this.scrollToBottom()
       }, 100)
+      if (e.hasOwnProperty('info') && e.info.length > 0) {
+        let userInfo = JSON.parse(decodeURIComponent(e.info));
+        console.log(userInfo)
+        this.fid = userInfo.fid
+        this.fname = userInfo.name
+        this.fimg = userInfo.imgurl
+      }
+      
+      this.testGetMsgs()
+      this.revSocketMsg()
     },
     created() {
       const res = uni.getSystemInfoSync(); //获取手机可使用窗口高度     api为获取系统信息同步接口
@@ -90,6 +105,21 @@
       this.gettopbarHeight()
     },
     methods: {
+      // socket接受
+      revSocketMsg(){
+        this.socket.on('msg',(msg,fromid)=>{
+          console.log(msg)
+          var data = {
+            userId: fromid, //a是好友
+            imgurl: this.fimg.substring(21),
+            message: msg.message,
+            type: msg.types, //信息类型（0：文字，1：图片，......）
+            time: new Date() - 1000,
+          }
+          data.imgurl = this.serverURL + data.imgurl
+          this.msgs.push(data)
+        })
+      },
       // 渲染出下一页数据
       nextPage() {
         if (this.canload && this.isload) {
@@ -107,7 +137,7 @@
             this.loadinganimationData = animation.export()
             i++
             console.log("loading")
-            this.getMsgs(this.nePage)
+            // this.getMsgs(this.nePage)
           }.bind(this), 200)
           this.swanimation = false
           console.log("this.scrollTop:"+this.scrollTop)
@@ -131,22 +161,28 @@
       inputs(e) {
         this.swanimation = true
         var data = {
-          id: 'b', //a是好友
-          imgurl: 'one.png',
+          userId: uni.getStorageSync('id'), //a是好友
+          imgurl: uni.getStorageSync('imgurl'),
           message: e.message,
-          types: e.types, //信息类型（0：文字，1：图片，......）
+          type: e.types, //信息类型（0：文字，1：图片，......）
           time: new Date() - 1000,
-          tip: 0
         }
-        data.imgurl = "../../static/images/img/" + data.imgurl
+        data.imgurl = this.serverURL + data.imgurl
         this.msgs.push(data)
         if (e.types == 1) {
           this.imgMsg.push(e.message)
+        }
+        if(e.types == 0){
+          this.sendSocket(e)
         }
         setTimeout(() => {
           this.scrollToBottom()
         }, 0)
         console.log(e)
+      },
+      // 聊天数据发送后端
+      sendSocket(e){
+        this.socket.emit('msg',e,uni.getStorageSync('id'),this.fid);
       },
       getchatMheight() {
         console.log("begin:"+this.chatMheight)
@@ -175,6 +211,29 @@
           delta: 1
         })
       },
+      testGetMsgs(){
+        const uid = uni.getStorageSync('id');
+        uni.request({
+          url: this.serverURL + '/message/getmsglist',
+          method: "POST",
+          data:{
+            uid: uid,
+            fid: this.fid
+          },
+          success: (res) => {
+            if(res.data.status == 200){
+              console.log("请求成功")
+              console.log(res.data)
+              this.msgs = res.data.list
+              for (let i = 0; i < this.msgs.length; i++) {
+                this.msgs[i].imgurl = this.serverURL + this.msgs[i].imgurl;
+              }
+            }else{
+              console.log(res.data.msg)
+            }
+          }
+        })
+      },
       getMsgs(page) {
         let msg = datas.message()
         console.log('page:' + page)
@@ -187,9 +246,9 @@
           this.canload = false
         }
         for (var i = startMsg; i < maxMsg; i++) {
-          msg[i].imgurl = "../../static/images/img/" + msg[i].imgurl
+          msg[i].imgurl = this.serverURL + msg[i].imgurl
           if (msg[i].types == 1) {
-            msg[i].message = "../../static/images/img/" + msg[i].message
+            msg[i].message = this.serverURL  + msg[i].message
             this.imgMsg.unshift(msg[i].message)
           }
           this.msgs.unshift(msg[i])

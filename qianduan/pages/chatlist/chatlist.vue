@@ -20,7 +20,7 @@
         <view class="friends-list">
           <view @tap="toReq">
             <view class="friends-list-l">
-              <text class="tip">1</text>
+              <!-- <text class="tip">1</text> -->
               <image src="../../static/images/index/apply.png" mode=""></image>
             </view>
             <view class="friends-list-r">
@@ -29,7 +29,6 @@
                   好友申请
                 </view>
                 <view class="time">
-                  下午13:12
                 </view>
               </view>
               <view class="message">
@@ -41,9 +40,9 @@
       </view>
 
       <view class="friends">
-        <view class="friends-list" v-for="(item,index) in friends" :key="index">
+        <view class="friends-list" @click="toChatroom(item.friendId,item.name,item.imgurl)" v-for="(item,index) in friends" :key="index">
           <view class="friends-list-l">
-            <text class="tip" v-if="item.tip>0">{{item.tip}}</text>
+            <!-- <text class="tip" v-if="item.tip>0">{{item.tip}}</text> -->
             <image :src=item.imgurl mode=""></image>
           </view>
           <view class="friends-list-r">
@@ -52,11 +51,11 @@
                 {{item.name}}
               </view>
               <view class="time">
-                {{item.times}}
+                {{item.time.substring(0,10)}}
               </view>
             </view>
             <view class="message">
-              {{item.news}}
+              {{item.signature}}
             </view>
           </view>
         </view>
@@ -81,7 +80,6 @@
 
 <script>
   import Vue from '../../App.vue'
-  import datas from '../../commons/js/datas.js'
   import {store} from '../../commons/js/store.js'
   export default {
     data() {
@@ -93,6 +91,7 @@
     },
     onLoad() {
       this.getFriends()
+      this.join(uni.getStorageSync('id'))
       // this.getUserMsg()
       // this.getStorages()
     },
@@ -126,6 +125,21 @@
       console.log(this.userMsg)
     },
     methods: {
+      
+      // socket模块
+      join(uid){
+        this.socket.emit('login',uid);
+      },
+      toChatroom(fid,name,imgurl){
+        const info = {
+          fid,
+          name,
+          imgurl
+        }
+        uni.navigateTo({
+          url: '../chatroom/chatroom?info='+ encodeURIComponent(JSON.stringify(info))
+        })
+      },
       //获取缓存数据
       getStorages:function(){
         try {
@@ -163,12 +177,27 @@
           url: "../search/search"
         })
       },
-      getFriends: function() {
-        this.friends = datas.friends()
-        for (var i = 0; i < this.friends.length; i++) {
-          this.friends[i].imgurl = "../../static/images/img/" + this.friends[i].imgurl
-        }
-        // console.log(this.friends)
+      async getFriends() {
+        await uni.request({
+          url: this.serverURL + '/friend/getusers',
+          data:{
+            uid: uni.getStorageSync('id'),
+          },
+          method:'POST',
+          success: (res) => {
+            if(res.data.status == 200){
+              console.log("请求成功")
+              console.log(res.data)
+              this.friends = res.data.data
+              for (let i = 0; i < this.friends.length; i++) {
+                this.friends[i].imgurl = this.serverURL + this.friends[i].imgurl;
+              }
+            }else{
+              console.log(res.data.msg)
+            }
+          }
+        });
+        
       }
     }
   }

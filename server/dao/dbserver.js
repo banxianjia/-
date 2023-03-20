@@ -288,11 +288,11 @@ exports.buildFriend = function (uid, fid, type, res) {
 // 添加一对一消息表
 exports.addMessage = function (uid, fid, type, message, res) {
     let sql = `insert into
-    messages(userId,friendId,type,message,time)
-    values(?,?,?,?,?)`;
+    messages(userId,friendId,type,message,time,status)
+    values(?,?,?,?,?,?)`;
     db.query(
         sql,
-        [uid, fid, type, message, new Date()],
+        [uid, fid, type, message, new Date(), 1],
         (err, results, fields) => {
             if (err) {
                 console.log(err);
@@ -362,6 +362,18 @@ exports.delFriend = function (data, res) {
                 res.send({ status: 500, msg: "sql执行失败" });
             } else {
                 console.log(results);
+                let sql1 = `delete from messages where userId=? and friendId=?`;
+                db.query(
+                    sql1,
+                    [data.fid, data.uid],
+                    (err1, results1, fields1) => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log(results1);
+                        }
+                    }
+                );
                 res.send({ status: 200, msg: "拒绝/删除成功" });
             }
         }
@@ -370,7 +382,7 @@ exports.delFriend = function (data, res) {
 //获取好友列表
 exports.getUsers = function (data, res) {
     let sql = `
-    select f.userId,f.remark,u.imgurl,u.name
+    select f.friendId,f.remark,f.time,u.imgurl,u.name,u.signature
     from friends f
     inner join users u
     on f.friendId = u.id
@@ -389,11 +401,13 @@ exports.getUsers = function (data, res) {
 //获取好友请求列表
 exports.getReq = function (data, res) {
     let sql = `
-    select m.message,u.name,m.time
+    select m.message,u.id,u.name,m.time
     from messages m
     inner join users u
     on m.userId = u.id
-    where m.friendId=? and m.type=3 
+    inner join friends f
+    on m.userId = f.userId
+    where m.friendId=? and m.type=3 and f.type = 2
     `
     db.query(sql, [data.uid], (err, results, fields) => {
         if (err) {
@@ -409,32 +423,26 @@ exports.getReq = function (data, res) {
 // 消息
 //获取消息列表
 exports.getMessagesList = function (data, res) {
-    let sql = `select * from friends where userId=? and type=0`;
-    db.query(sql, [data.uid], (err, results, fields) => {
+    let sql = `select m.userId,m.message,m.type,m.time,u.imgurl
+    from messages m 
+    inner join users u
+    on m.userId = u.id
+    where (m.userId=? and m.friendId=?) or (m.userId=? and m.friendId=?) order by time DESC`;
+    db.query(sql, [data.uid, data.fid, data.fid, data.uid], (err, results, fields) => {
         if (err) {
             console.log(err);
-            res.send({ status: 500, msg: "sql执行失败" });
+            res.send({ status: 500, msg: "sql1执行失败" });
         } else {
-            for (let index = 0; index < results.length; index++) {
-                let fid = results[index].friendId;
-                let sql1 = `select * from messages where userId=? and friendId=? and status=1 order by time DESC`;
-                db.query(sql1, [fid, data.uid,], (err, results, fields) => {
-                    if (err) {
-                        console.log(err);
-                        res.send({ status: 500, msg: "sql1执行失败" });
-                    } else {
-                        console.log(results);
-                        data = {
-                            message: results[0].message,
-                            time: results[0].time,
-                            len: results.length,
-                        };
-                        res.send({ status: 200, msg: "请求成功", data });
-                    }
-                });
-            }
+            console.log(3333333);
+            console.log(results);
+            console.log(4444444);
+
+            // friendsList.push(results);
+            res.send({ status: 200, msg: "请求成功", list: results });
         }
     });
+    console.log(55555555555);
+    // console.log(friendsList)
 };
 //修改消息状态为已读
 exports.altMsgStatus = function (data, res) {
@@ -450,4 +458,4 @@ exports.altMsgStatus = function (data, res) {
     });
 };
 
-//聊天消息
+//获取一对一聊天消息

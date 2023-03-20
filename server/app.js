@@ -6,8 +6,13 @@ var dbserver = require("./dao/dbserver");
 var jwt = require("./dao/jwt");
 
 var app = express();
-
 const port = 3000;
+
+//socket.io
+const { Server } = require("socket.io");
+const io = new Server(8082)
+require('./dao/socket')(io);
+
 
 // 允许跨域
 app.all("*", function (req, res, next) {

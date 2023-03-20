@@ -33,7 +33,7 @@ let createUsers = `create table if not exists users(
  * 用户id
  * 好友id
  * 生成时间
- * 好友类型（0已为好友，1被申请中，2发送申请中）
+ * 好友类型（0已为好友，1被申请中 ，2发送申请中  ）
  * 备注
  */
 let createFriends = `create table if not exists friends(

@@ -18,11 +18,11 @@
     <view class="main">
       <view class="requester" v-for="(item,index) in list" :key="index">
         <view class="request-top">
-          <view class="reject">
+          <view class="reject" @click="rejectFriend(index)">
             拒绝
           </view>
           <image class="user-img" src="../../static/images/img/one.png" mode=""></image>
-          <view class="agree">
+          <view class="agree" @click="agreeFriend(index)">
             同意
           </view>
         </view>
@@ -66,6 +66,7 @@
           if(res.data.status == 200){
             console.log("请求成功")
             this.list = res.data.list
+            console.log(res.data.list)
           }else{
             console.log(res.data.msg)
           }
@@ -78,6 +79,43 @@
           delta: 1
         })
       },
+      agreeFriend(index){
+        console.log(this.list[index].id)
+        uni.request({
+          url: this.serverURL + '/friend/aggre',
+          data:{
+            uid: uni.getStorageSync('id'),
+            fid: this.list[index].id,
+          },
+          method:'POST',
+          success: (res) => {
+            if(res.data.status == 200){
+              console.log("请求成功")
+              this.list = res.data.list
+            }else{
+              console.log(res.data.msg)
+            }
+          }
+        })
+      },
+      rejectFriend(index){
+        uni.request({
+          url: this.serverURL + '/friend/del',
+          data:{
+            uid: uni.getStorageSync('id'),
+            fid: this.list[index].id,
+          },
+          method:'POST',
+          success: (res) => {
+            if(res.data.status == 200){
+              console.log("请求成功")
+              console.log(res.data.msg)
+            }else{
+              console.log(res.data.msg)
+            }
+          }
+        })
+      }
     }
   }
 </script>
