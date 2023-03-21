@@ -1,3 +1,4 @@
+let dbserver = require('./dbserver')
 module.exports = function (io) {
     var users = {};// socket注册用户
     io.on('connection', (socket) => {
@@ -13,7 +14,12 @@ module.exports = function (io) {
         // 用户消息
         socket.on('msg', (msg, fromid, toid) => {
             console.log(msg)
-            socket.to(users[toid]).emit('msg', msg, fromid)
+            // 存储消息
+            dbserver.addMessage(fromid, toid, msg.types, msg.message);
+            // 发送给对方
+            if (users[toid]) {
+                socket.to(users[toid]).emit('msg', msg, fromid)
+            }
         })
         // 用户离开
         socket.on('disconnecting', () => {

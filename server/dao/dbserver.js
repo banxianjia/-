@@ -296,10 +296,14 @@ exports.addMessage = function (uid, fid, type, message, res) {
         (err, results, fields) => {
             if (err) {
                 console.log(err);
-                res.send({ status: 500, msg: "sql执行失败" });
+                if (res) {
+                    res.send({ status: 500, msg: "sql执行失败" });
+                }
             } else {
                 console.log(results);
-                res.send({ status: 200, msg: "发送成功" });
+                if (res) {
+                    res.send({ status: 200, msg: "发送成功" });
+                }
             }
         }
     );
@@ -427,7 +431,7 @@ exports.getMessagesList = function (data, res) {
     from messages m 
     inner join users u
     on m.userId = u.id
-    where (m.userId=? and m.friendId=?) or (m.userId=? and m.friendId=?) order by time DESC`;
+    where (m.userId=? and m.friendId=?) or (m.userId=? and m.friendId=?) order by time ASC`;
     db.query(sql, [data.uid, data.fid, data.fid, data.uid], (err, results, fields) => {
         if (err) {
             console.log(err);
@@ -444,6 +448,23 @@ exports.getMessagesList = function (data, res) {
     console.log(55555555555);
     // console.log(friendsList)
 };
+//获取最后一条消息
+exports.getLastMessages = function (data, res) {
+    let sql = `select userId,message,type,time
+    from messages
+    where (userId=? and friendId=?) or (userId=? and friendId=?) order by time DESC
+    LIMIT 1`;
+    db.query(sql, [data.uid, data.fid, data.fid, data.uid], (err, results, fields) => {
+        if (err) {
+            console.log(err);
+            res.send({ status: 500, msg: "sql1执行失败" });
+        } else {
+            console.log(results);
+
+            res.send({ status: 200, msg: "请求成功", list: results });
+        }
+    });
+};
 //修改消息状态为已读
 exports.altMsgStatus = function (data, res) {
     let sql = `update messages set status=0 where userId=> and friendId=? and status=1`;
@@ -458,4 +479,3 @@ exports.altMsgStatus = function (data, res) {
     });
 };
 
-//获取一对一聊天消息

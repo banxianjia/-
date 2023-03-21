@@ -55,7 +55,7 @@
               </view>
             </view>
             <view class="message">
-              {{item.signature}}
+              {{item.msg}}
             </view>
           </view>
         </view>
@@ -92,6 +92,7 @@
     onLoad() {
       this.getFriends()
       this.join(uni.getStorageSync('id'))
+      this.revSocketMsg()
       // this.getUserMsg()
       // this.getStorages()
     },
@@ -191,14 +192,65 @@
               this.friends = res.data.data
               for (let i = 0; i < this.friends.length; i++) {
                 this.friends[i].imgurl = this.serverURL + this.friends[i].imgurl;
+                this.getLastMsg(this.friends,i);
               }
             }else{
               console.log(res.data.msg)
             }
           }
         });
-        
-      }
+      },
+      async getLastMsg(arr,index){
+        await uni.request({
+          url: this.serverURL + '/message/getlastmsg',
+          data:{
+            uid: uni.getStorageSync('id'),
+            fid: arr[index].friendId,
+          },
+          method:'POST',
+          success: (res) => {
+            if(res.data.status == 200){
+              console.log("请求成功")
+              console.log(res.data)
+              let e = arr[index]
+              e.type = res.data.list[0].type
+              e.time = res.data.list[0].time
+              if(e.type == 0){
+                e.msg = res.data.list[0].message
+              }else {
+                e.msg = '[非文字信息]'
+              }
+              arr.splice(index,1,e);
+            }else{
+              console.log(res.data.msg)
+            }
+          }
+        })
+      },
+      // socket接受
+      revSocketMsg(){
+        this.socket.on('msg',(msg,fromid)=>{
+          console.log(msg)
+          console.log(fromid)
+          for (let i = 0; i < this.friends.length; i++) {
+            if(fromid == this.friends[i].friendId){
+              let item = this.friends[i]
+              item.type = msg.types
+              let date = new Date()
+              item.time = (date.getMonth()+1)+'-'+date.getDate()
+              if(msg.types == 0){
+                item.msg = msg.message
+              }else {
+                item.msg = '[非文字信息]'
+              }
+              this.friends.splice(i,1)
+              this.friends.unshift(item)
+              break;
+            }
+          }
+          
+        })
+      },
     }
   }
 </script>

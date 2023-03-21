@@ -110,6 +110,7 @@
               			success: (uploadFileRes) => {
                       //照片在服务器中的地址
                       let path = this.serverURL + uploadFileRes.data
+                      this.send(uploadFileRes.data,1)
               			}
               		});
               
@@ -119,7 +120,7 @@
               			console.log('预期需要上传的数据总长度' + res.totalBytesExpectedToSend);
               
               		});
-              this.send(filePath[i],1)
+              
             }
         		console.log(JSON.stringify(chooseImageRes.tempFilePaths));
         	}

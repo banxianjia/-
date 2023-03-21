@@ -7,7 +7,10 @@ exports.getMsgList = function (req, res) {
     let data = req.body
     dbserver.getMessagesList(data, res)
 }
-
+exports.getLastMsg = function (req,res){
+    let data = req.body
+    dbserver.getLastMessages(data, res)
+}
 exports.altMsgStatus = function (req, res) {
     let data = req.body
     dbserver.altMsgStatus(data, res)

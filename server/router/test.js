@@ -93,6 +93,10 @@ router.post("/friend/getreq", (req, res) => {
 router.post("/message/getmsglist", (req, res) => {
     message.getMsgList(req, res);
 })
+//获取最新一条消息
+router.post("/message/getlastmsg", (req, res) => {
+    message.getLastMsg(req, res);
+})
 //修改消息状态为已读
 router.post("/message/altmsgstatus", (req, res) => {
     message.altMsgStatus(req, res);

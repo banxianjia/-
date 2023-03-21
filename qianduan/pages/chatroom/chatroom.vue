@@ -16,7 +16,7 @@
         </view>
       </view>
     </view>
-    <scroll-view @scrolltoupper="nextPage()" :style="{height:chatHeight+'px'}" id="scrollView" class="chat"
+    <scroll-view @scrolltoupper="" :style="{height:chatHeight+'px'}" id="scrollView" class="chat"
       scroll-y="true" :scroll-with-animation="swanimation" :scroll-top="scrollTop">
       <view class="chat-main" id="chat-m" :style="{paddingBottom:submitHeight+'px',paddingTop:tobBarHeight+'px'}">
         <view class="loading" :class="{displaynone:!isloading}">
@@ -29,7 +29,7 @@
             <image class="user-img" :src="item.imgurl" mode=""></image>
             <view class="message" v-if="item.type == 0||item.type == 3">{{item.message}}</view>
             <view class="message" v-if="item.type == 1">
-              <image @tap="previewImg(item.message)" class="msg-img" :src="item.message" mode="widthFix"></image>
+              <image @tap="previewImg(item.message)" class="msg-img" :src="serverURL+item.message" mode="widthFix"></image>
             </view>
           </view>
         </view>
@@ -92,7 +92,7 @@
         this.fimg = userInfo.imgurl
       }
       
-      this.testGetMsgs()
+      this.getMsgs()
       this.revSocketMsg()
     },
     created() {
@@ -107,17 +107,21 @@
     methods: {
       // socket接受
       revSocketMsg(){
+        this.swanimation = true
         this.socket.on('msg',(msg,fromid)=>{
           console.log(msg)
-          var data = {
-            userId: fromid, //a是好友
-            imgurl: this.fimg.substring(21),
-            message: msg.message,
-            type: msg.types, //信息类型（0：文字，1：图片，......）
-            time: new Date() - 1000,
+          console.log(fromid)
+          if(fromid == this.fid){
+            var data = {
+              userId: fromid, //a是好友
+              imgurl: this.fimg.substring(21),
+              message: msg.message,
+              type: msg.types, //信息类型（0：文字，1：图片，......）
+              time: new Date() - 1000,
+            }
+            data.imgurl = this.serverURL + data.imgurl
+            this.msgs.push(data)
           }
-          data.imgurl = this.serverURL + data.imgurl
-          this.msgs.push(data)
         })
       },
       // 渲染出下一页数据
@@ -169,10 +173,12 @@
         }
         data.imgurl = this.serverURL + data.imgurl
         this.msgs.push(data)
-        if (e.types == 1) {
-          this.imgMsg.push(e.message)
-        }
         if(e.types == 0){
+          this.sendSocket(e)
+        }
+        if (e.types == 1) {
+          this.imgMsg.push(this.serverURL+e.message)
+          // console.log(this.serverURL+e.message)
           this.sendSocket(e)
         }
         setTimeout(() => {
@@ -182,6 +188,7 @@
       },
       // 聊天数据发送后端
       sendSocket(e){
+        console.log(e)
         this.socket.emit('msg',e,uni.getStorageSync('id'),this.fid);
       },
       getchatMheight() {
@@ -211,7 +218,7 @@
           delta: 1
         })
       },
-      testGetMsgs(){
+      getMsgs(){
         const uid = uni.getStorageSync('id');
         uni.request({
           url: this.serverURL + '/message/getmsglist',
@@ -227,6 +234,9 @@
               this.msgs = res.data.list
               for (let i = 0; i < this.msgs.length; i++) {
                 this.msgs[i].imgurl = this.serverURL + this.msgs[i].imgurl;
+                if(this.msgs[i].type == 1){
+                  this.imgMsg.push(this.serverURL+this.msgs[i].message)
+                }
               }
             }else{
               console.log(res.data.msg)
@@ -234,41 +244,42 @@
           }
         })
       },
-      getMsgs(page) {
-        let msg = datas.message()
-        console.log('page:' + page)
-        var maxMsg = (page + 1) * 10
-        var startMsg = page * 10
-        console.log(maxMsg + "?" + msg.length)
-        console.log(this.canload)
-        if (maxMsg > msg.length) {
-          maxMsg = msg.length
-          this.canload = false
-        }
-        for (var i = startMsg; i < maxMsg; i++) {
-          msg[i].imgurl = this.serverURL + msg[i].imgurl
-          if (msg[i].types == 1) {
-            msg[i].message = this.serverURL  + msg[i].message
-            this.imgMsg.unshift(msg[i].message)
-          }
-          this.msgs.unshift(msg[i])
-        }
-        this.nePage = this.nePage+1
-        clearInterval(this.loadingsetIn)
-        setTimeout(()=>{
-          this.getchatMheight()
-        },0)
-        console.log("load-close")
-        this.isloading = false
-        this.isload = true
-        // this.$nextTick(function(){
-        //   this.scrollToBottom()
-        // })
-      },
+      // getMsgs(page) {
+      //   let msg = datas.message()
+      //   console.log('page:' + page)
+      //   var maxMsg = (page + 1) * 10
+      //   var startMsg = page * 10
+      //   console.log(maxMsg + "?" + msg.length)
+      //   console.log(this.canload)
+      //   if (maxMsg > msg.length) {
+      //     maxMsg = msg.length
+      //     this.canload = false
+      //   }
+      //   for (var i = startMsg; i < maxMsg; i++) {
+      //     msg[i].imgurl = this.serverURL + msg[i].imgurl
+      //     if (msg[i].types == 1) {
+      //       msg[i].message = this.serverURL  + msg[i].message
+      //       this.imgMsg.unshift(msg[i].message)
+      //     }
+      //     this.msgs.unshift(msg[i])
+      //   }
+      //   this.nePage = this.nePage+1
+      //   clearInterval(this.loadingsetIn)
+      //   setTimeout(()=>{
+      //     this.getchatMheight()
+      //   },0)
+      //   console.log("load-close")
+      //   this.isloading = false
+      //   this.isload = true
+      //   // this.$nextTick(function(){
+      //   //   this.scrollToBottom()
+      //   // })
+      // },
       previewImg(flag) {
         let index;
         for (var i = 0; i < this.imgMsg.length; i++) {
-          if (flag == this.imgMsg[i]) {
+          if (this.serverURL+flag == this.imgMsg[i]) {
+            console.log(1111)
             index = i
             break
           }
